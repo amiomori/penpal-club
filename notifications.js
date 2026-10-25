@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   const {data,error}=await db.from('member_notifications').select('id,kind,title,body,target_url,created_at,read_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(60);
   if(error){if(root)root.textContent='Notifications unavailable: '+error.message;return}
   const count=data.filter(n=>!n.read_at).length;const badge=bell.querySelector('.pc-count');badge.hidden=!count;badge.textContent=count>99?'99+':String(count);
-  if(!root)return;root.replaceChildren();const h=document.createElement('h2');h.textContent='🔔 Notifications';root.append(h);
+  if(!root)return;root.replaceChildren();const h=document.createElement('h2');h.textContent='🔔 Notifications';root.append(h);const all=document.createElement('button');all.type='button';all.textContent='Mark all as read';all.onclick=async()=>{all.disabled=true;const {error}=await db.rpc('pc_mark_all_notifications_read');if(error){alert(error.message);all.disabled=false}else refresh()};root.append(all);
   if(!data.length){const p=document.createElement('p');p.textContent='No notifications yet.';root.append(p);return}
   for(const n of data){const item=document.createElement('div');item.className='pc-notification-item';item.dataset.unread=String(!n.read_at);
    const a=document.createElement('a');a.textContent=n.title;a.href=['club.html','admin.html','member.html'].includes(n.target_url)?n.target_url:'club.html';
